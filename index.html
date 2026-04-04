@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nutrizel — Integrated Health & Nutrition Consulting</title>
+  <meta name="description" content="Nutrizel Integrated Health and Nutrition Consulting and Therapy Center — Professional healthcare and nutrition services in Addis Ababa, Ethiopia." />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="hidden">
+  <div class="spinner"></div>
+  <p style="color:var(--text-light);font-size:0.9rem;">Loading...</p>
+</div>
+
+<!-- Notification Container -->
+<div id="notification-container"></div>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="navbar-inner">
+    <a href="index.html" class="navbar-brand" aria-label="Nutrizel Home">
+      <span class="brand-icon">🌿</span>
+      <div>
+        Nutrizel
+        <span>Health & Nutrition Center</span>
+      </div>
+    </a>
+
+    <button id="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">☰</button>
+
+    <ul class="nav-menu" id="nav-menu" role="list">
+      <li><a href="index.html" class="nav-link" data-i18n="nav_home">Home</a></li>
+      <li><a href="#services" class="nav-link" data-i18n="nav_services">Services</a></li>
+      <li><a href="#about" class="nav-link" data-i18n="nav_about">About</a></li>
+      <li><a href="#contact" class="nav-link" data-i18n="nav_contact">Contact</a></li>
+      <li class="nav-auth-login"><a href="login.html" class="nav-link" data-i18n="nav_login">Login</a></li>
+      <li class="nav-auth-login"><a href="register.html" class="btn btn-primary btn-sm" data-i18n="nav_register">Register</a></li>
+      <li class="nav-auth-dash" style="display:none"><a href="dashboard.html" class="nav-link" data-i18n="nav_dashboard">Dashboard</a></li>
+      <li class="nav-auth-logout" style="display:none"><button onclick="Auth.logout()" class="btn btn-outline btn-sm" data-i18n="nav_logout">Logout</button></li>
+    </ul>
+
+    <div class="nav-actions">
+      <div class="dark-toggle-wrap">
+        <span>🌙</span>
+        <label class="toggle-switch" aria-label="Toggle dark mode">
+          <input type="checkbox" id="dark-toggle" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <select id="lang-selector" class="lang-select" aria-label="Select language">
+        <option value="en">EN</option>
+        <option value="am">አማ</option>
+        <option value="or">OR</option>
+        <option value="ti">ትግ</option>
+      </select>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero" aria-label="Hero section">
+  <div class="hero-inner">
+    <div class="hero-content animate-fade-up">
+      <div class="hero-badge">🏥 <span>Ethiopia's Trusted Nutrition Center</span></div>
+      <h1 data-i18n="hero_title">Integrated Health &amp; <span>Nutrition Consulting</span></h1>
+      <p data-i18n="hero_subtitle">Professional care for your body, mind, and nutrition — all in one place.</p>
+      <div class="hero-actions">
+        <a href="register.html" class="btn btn-white btn-lg">📅 <span data-i18n="hero_book">Book Appointment</span></a>
+        <button onclick="toggleChatbot()" class="btn btn-outline-white btn-lg">🤖 <span data-i18n="hero_chat">Chat with AI</span></button>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hero-stat-card">
+        <div class="hero-stat-icon">👥</div>
+        <div><div class="hero-stat-num">5,000+</div><div class="hero-stat-label">Patients Served</div></div>
+      </div>
+      <div class="hero-stat-card">
+        <div class="hero-stat-icon">🏆</div>
+        <div><div class="hero-stat-num">15+</div><div class="hero-stat-label">Expert Nutritionists</div></div>
+      </div>
+      <div class="hero-stat-card">
+        <div class="hero-stat-icon">🌍</div>
+        <div><div class="hero-stat-num">4</div><div class="hero-stat-label">Languages Supported</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SEARCH ===== -->
+<section style="padding:2.5rem 1.5rem; background:var(--white);">
+  <div class="container">
+    <div class="search-bar">
+      <input type="search" id="search-input" data-i18n="search_placeholder" placeholder="Search nutrition topics, health advice..." aria-label="Search" />
+      <button class="btn btn-primary" onclick="doSearch()" data-i18n="search_btn">Search</button>
+    </div>
+    <div id="search-results" class="search-results" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ===== SERVICES ===== -->
+<section class="section section-alt" id="services" aria-labelledby="services-heading">
+  <div class="container">
+    <h2 class="section-title" id="services-heading" data-i18n="services_title">Our <span>Services</span></h2>
+    <p class="section-subtitle">Evidence-based, culturally sensitive healthcare for every Ethiopian</p>
+    <div class="grid-3" id="services-grid"></div>
+  </div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section class="section" id="about" aria-labelledby="about-heading">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-text">
+        <div class="badge badge-primary mb-2">🌿 About Us</div>
+        <h2 id="about-heading" data-i18n="about_title">About <span style="color:var(--primary)">Nutrizel</span></h2>
+        <p data-i18n="about_text">Nutrizel Integrated Health and Nutrition Consulting and Therapy Center is dedicated to providing evidence-based, culturally sensitive healthcare and nutrition services to individuals and communities across Ethiopia.</p>
+        <p style="color:var(--text-light);line-height:1.8;">Our team of certified nutritionists, dietitians, and healthcare professionals work together to deliver personalized care that respects Ethiopian culture, traditions, and food systems.</p>
+        <a href="register.html" class="btn btn-primary mt-3">Get Started Today</a>
+        <div class="about-stats">
+          <div class="about-stat"><div class="about-stat-num">10+</div><div class="about-stat-label">Years Experience</div></div>
+          <div class="about-stat"><div class="about-stat-num">98%</div><div class="about-stat-label">Satisfaction Rate</div></div>
+          <div class="about-stat"><div class="about-stat-num">24/7</div><div class="about-stat-label">Support Available</div></div>
+        </div>
+      </div>
+      <div class="about-visual" aria-hidden="true">
+        <div class="about-feature"><span class="about-feature-icon">🥗</span><span class="about-feature-text">Personalized Nutrition Plans</span></div>
+        <div class="about-feature"><span class="about-feature-icon">💊</span><span class="about-feature-text">Chronic Disease Management</span></div>
+        <div class="about-feature"><span class="about-feature-icon">🤖</span><span class="about-feature-text">AI-Powered Health Insights</span></div>
+        <div class="about-feature"><span class="about-feature-icon">🌍</span><span class="about-feature-text">Multilingual Support</span></div>
+        <div class="about-feature"><span class="about-feature-icon">📱</span><span class="about-feature-text">Digital Health Platform</span></div>
+        <div class="about-feature"><span class="about-feature-icon">🏥</span><span class="about-feature-text">Emergency Nutrition Care</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="section section-alt" id="faq" aria-labelledby="faq-heading">
+  <div class="container">
+    <h2 class="section-title" id="faq-heading" data-i18n="faq_title">Frequently Asked <span>Questions</span></h2>
+    <p class="section-subtitle">Common questions about nutrition and health conditions</p>
+    <div class="faq-tabs" role="tablist">
+      <button class="faq-tab active" role="tab" aria-selected="true" onclick="loadFAQ('diabetes',this)">🩸 Diabetes</button>
+      <button class="faq-tab" role="tab" aria-selected="false" onclick="loadFAQ('hypertension',this)">❤️ Hypertension</button>
+      <button class="faq-tab" role="tab" aria-selected="false" onclick="loadFAQ('malnutrition',this)">🌾 Malnutrition</button>
+      <button class="faq-tab" role="tab" aria-selected="false" onclick="loadFAQ('weightloss',this)">⚖️ Weight Loss</button>
+    </div>
+    <div id="faq-list" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- ===== NEWS ===== -->
+<section class="section" id="news" aria-labelledby="news-heading">
+  <div class="container">
+    <h2 class="section-title" id="news-heading" data-i18n="news_title">News &amp; <span>Updates</span></h2>
+    <p class="section-subtitle">Latest health tips and center announcements</p>
+    <div class="grid-3" id="news-grid"></div>
+  </div>
+</section>
+
+<!-- ===== FEEDBACK ===== -->
+<section class="section section-alt" id="feedback" aria-labelledby="feedback-heading">
+  <div class="container">
+    <div class="grid-2">
+      <div>
+        <h2 class="section-title" style="text-align:left" id="feedback-heading" data-i18n="feedback_title">Customer <span>Feedback</span></h2>
+        <p class="section-subtitle" style="text-align:left">Share your experience with us</p>
+        <div class="card">
+          <div class="form-group">
+            <label>Your Name</label>
+            <input type="text" id="fb-name" placeholder="Enter your name" />
+          </div>
+          <div class="form-group">
+            <label data-i18n="feedback_rating">Rating</label>
+            <div class="stars" id="star-rating" role="group" aria-label="Rating">
+              <span class="star" data-val="1" onclick="setRating(1)" aria-label="1 star">★</span>
+              <span class="star" data-val="2" onclick="setRating(2)" aria-label="2 stars">★</span>
+              <span class="star" data-val="3" onclick="setRating(3)" aria-label="3 stars">★</span>
+              <span class="star" data-val="4" onclick="setRating(4)" aria-label="4 stars">★</span>
+              <span class="star" data-val="5" onclick="setRating(5)" aria-label="5 stars">★</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label data-i18n="feedback_comment">Your Comment</label>
+            <textarea id="fb-comment" rows="3" placeholder="Tell us about your experience..."></textarea>
+          </div>
+          <button class="btn btn-primary btn-block" onclick="submitFeedback()" data-i18n="feedback_submit">Submit Feedback</button>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;">Recent Reviews</h3>
+        <div id="feedback-list" class="feedback-list"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== LOCATION ===== -->
+<section class="section" id="location" aria-labelledby="location-heading">
+  <div class="container">
+    <h2 class="section-title" id="location-heading" data-i18n="location_title">Find <span>Us</span></h2>
+    <p class="section-subtitle">Visit our clinic in Addis Ababa</p>
+    <div class="location-grid">
+      <div class="map-container" role="img" aria-label="Map showing clinic location">
+        <div class="map-placeholder">
+          <div class="map-pin">📍</div>
+          <div style="text-align:center">
+            <strong>Nutrizel Health Center</strong><br/>
+            <span style="color:var(--text-light);font-size:0.9rem;">Bole Sub-City, Addis Ababa</span><br/>
+            <span style="font-size:0.8rem;color:var(--text-light);">9.0054° N, 38.7636° E</span>
+          </div>
+          <a href="https://maps.google.com/?q=9.0054,38.7636" target="_blank" rel="noopener" class="btn btn-primary btn-sm">Open in Google Maps</a>
+        </div>
+      </div>
+      <div class="location-info" id="location-info"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section class="section section-alt" id="contact" aria-labelledby="contact-heading">
+  <div class="container">
+    <h2 class="section-title" id="contact-heading" data-i18n="contact_title">Contact <span>Us</span></h2>
+    <p class="section-subtitle">We'd love to hear from you</p>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <div class="card">
+          <h3 style="font-weight:700;margin-bottom:1rem;">Get in Touch</h3>
+          <div class="location-item">
+            <span class="location-item-icon">📍</span>
+            <div><div class="location-item-label">Address</div><div class="location-item-value">Bole Sub-City, Addis Ababa, Ethiopia</div></div>
+          </div>
+          <div class="location-item mt-2">
+            <span class="location-item-icon">📞</span>
+            <div><div class="location-item-label">Phone</div><div class="location-item-value">+251-911-000-000</div></div>
+          </div>
+          <div class="location-item mt-2">
+            <span class="location-item-icon">✉️</span>
+            <div><div class="location-item-label">Email</div><div class="location-item-value">info@nutrizel.et</div></div>
+          </div>
+          <div class="location-item mt-2">
+            <span class="location-item-icon">🕐</span>
+            <div><div class="location-item-label">Hours</div><div class="location-item-value">Mon–Sat: 8:00 AM – 6:00 PM</div></div>
+          </div>
+          <div class="contact-social mt-3">
+            <a href="#" class="social-btn social-fb" aria-label="Facebook">📘 Facebook</a>
+            <a href="#" class="social-btn social-tg" aria-label="Telegram">✈️ Telegram</a>
+            <a href="#" class="social-btn social-ig" aria-label="Instagram">📸 Instagram</a>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="font-weight:700;margin-bottom:1.5rem;">Send a Message</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label data-i18n="contact_name">Your Name</label>
+            <input type="text" id="ct-name" data-i18n="contact_name" placeholder="Your Name" />
+          </div>
+          <div class="form-group">
+            <label data-i18n="contact_email">Your Email</label>
+            <input type="email" id="ct-email" data-i18n="contact_email" placeholder="Your Email" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label data-i18n="contact_message">Your Message</label>
+          <textarea id="ct-message" rows="5" data-i18n="contact_message" placeholder="Your Message"></textarea>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="submitContact()" data-i18n="contact_send">Send Message</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer" role="contentinfo">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">🌿 Nutrizel</div>
+      <p class="footer-desc">Integrated Health and Nutrition Consulting and Therapy Center. Serving Ethiopia with evidence-based, culturally sensitive healthcare.</p>
+    </div>
+    <div>
+      <div class="footer-heading">Quick Links</div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="#services">Services</a>
+        <a href="#about">About Us</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-heading">Services</div>
+      <div class="footer-links">
+        <a href="#">Nutrition Assessment</a>
+        <a href="#">Chronic Disease Therapy</a>
+        <a href="#">Meal Planning</a>
+        <a href="#">Emergency Care</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-heading">Connect</div>
+      <div class="footer-links">
+        <a href="#">📘 Facebook</a>
+        <a href="#">✈️ Telegram</a>
+        <a href="#">📸 Instagram</a>
+        <a href="mailto:info@nutrizel.et">✉️ Email Us</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Nutrizel Health Center. <span data-i18n="footer_rights">All rights reserved.</span></span>
+    <span>Made with ❤️ for Ethiopia</span>
+  </div>
+</footer>
+
+<!-- ===== AI CHATBOT ===== -->
+<button class="chatbot-fab" id="chatbot-fab" onclick="toggleChatbot()" aria-label="Open AI Chatbot" title="Chat with NutriBot">🤖</button>
+<div class="chatbot-window" id="chatbot-window" role="dialog" aria-label="AI Health Assistant" aria-modal="true">
+  <div class="chatbot-header">
+    <div class="chatbot-header-info">
+      <div class="chatbot-avatar">🤖</div>
+      <div>
+        <div class="chatbot-name">NutriBot</div>
+        <div class="chatbot-status">● Online — AI Health Assistant</div>
+      </div>
+    </div>
+    <button class="chatbot-close" onclick="toggleChatbot()" aria-label="Close chatbot">✕</button>
+  </div>
+  <div class="chatbot-messages" id="chatbot-messages" aria-live="polite"></div>
+  <div class="chatbot-input-area">
+    <input type="text" id="chatbot-input" placeholder="Ask me about nutrition, health..." aria-label="Chat message" onkeydown="if(event.key==='Enter')sendChat()" />
+    <button class="chatbot-send" onclick="sendChat()" aria-label="Send message">➤</button>
+  </div>
+</div>
+
+<script src="js/lang.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/app.js"></script>
+<script>
+// ---- Render Services ----
+function renderServices() {
+  const grid = document.getElementById("services-grid");
+  if (!grid) return;
+  grid.innerHTML = Services.map(s => `
+    <div class="service-card card-hover">
+      <div class="service-icon">${s.icon}</div>
+      <h3>${s.name}</h3>
+      <p>${s.desc}</p>
+      <a href="register.html" class="btn btn-outline btn-sm mt-3" style="width:100%;justify-content:center;">Book Now</a>
+    </div>
+  `).join("");
+}
+
+// ---- Render News ----
+function renderNews() {
+  const grid = document.getElementById("news-grid");
+  if (!grid) return;
+  const items = News.getAll().slice(0, 3);
+  grid.innerHTML = items.map(n => `
+    <div class="news-card">
+      <div class="news-card-header">${n.icon || "📰"}</div>
+      <div class="news-card-body">
+        <div class="news-card-date">📅 ${n.date}</div>
+        <div class="news-card-title">${n.title}</div>
+        <div class="news-card-content">${n.content}</div>
+      </div>
+    </div>
+  `).join("");
+}
+
+// ---- Render Location Info ----
+function renderLocation() {
+  const el = document.getElementById("location-info");
+  if (!el) return;
+  const loc = ClinicLocation;
+  el.innerHTML = `
+    <div class="location-item"><span class="location-item-icon">📍</span><div><div class="location-item-label">Address</div><div class="location-item-value">${loc.address}</div></div></div>
+    <div class="location-item"><span class="location-item-icon">🌐</span><div><div class="location-item-label">GPS Coordinates</div><div class="location-item-value">${loc.lat}° N, ${loc.lng}° E</div></div></div>
+    <div class="location-item"><span class="location-item-icon">📞</span><div><div class="location-item-label">Phone</div><div class="location-item-value">${loc.phone}</div></div></div>
+    <div class="location-item"><span class="location-item-icon">✉️</span><div><div class="location-item-label">Email</div><div class="location-item-value">${loc.email}</div></div></div>
+    <div class="location-item"><span class="location-item-icon">🕐</span><div><div class="location-item-label">Working Hours</div><div class="location-item-value">Monday – Saturday: 8:00 AM – 6:00 PM</div></div></div>
+  `;
+}
+
+// ---- FAQ ----
+function loadFAQ(category, btn) {
+  document.querySelectorAll(".faq-tab").forEach(t => { t.classList.remove("active"); t.setAttribute("aria-selected","false"); });
+  btn.classList.add("active"); btn.setAttribute("aria-selected","true");
+  const faqs = AI.getFAQs(category);
+  const list = document.getElementById("faq-list");
+  list.innerHTML = faqs.map((f, i) => `
+    <div class="faq-item" id="faq-${i}">
+      <div class="faq-question" onclick="toggleFAQ(${i})" role="button" aria-expanded="false" tabindex="0">
+        <span>${f.q}</span><span class="faq-chevron">▼</span>
+      </div>
+      <div class="faq-answer">${f.a}</div>
+    </div>
+  `).join("");
+}
+function toggleFAQ(i) {
+  const item = document.getElementById("faq-" + i);
+  item.classList.toggle("open");
+  item.querySelector(".faq-question").setAttribute("aria-expanded", item.classList.contains("open"));
+}
+
+// ---- Feedback ----
+let currentRating = 0;
+function setRating(val) {
+  currentRating = val;
+  document.querySelectorAll(".star").forEach(s => s.classList.toggle("active", +s.dataset.val <= val));
+}
+function submitFeedback() {
+  const name = document.getElementById("fb-name").value.trim();
+  const comment = document.getElementById("fb-comment").value.trim();
+  if (!name || !comment || !currentRating) { showNotification("Please fill all fields and select a rating.", "error"); return; }
+  Feedback.add({ name, comment, rating: currentRating });
+  showNotification("Thank you for your feedback!", "success");
+  document.getElementById("fb-name").value = "";
+  document.getElementById("fb-comment").value = "";
+  currentRating = 0;
+  document.querySelectorAll(".star").forEach(s => s.classList.remove("active"));
+  renderFeedback();
+}
+function renderFeedback() {
+  const list = document.getElementById("feedback-list");
+  if (!list) return;
+  const items = Feedback.getAll().slice(-5).reverse();
+  if (!items.length) { list.innerHTML = '<p style="color:var(--text-light);font-size:0.9rem;">No reviews yet. Be the first!</p>'; return; }
+  list.innerHTML = items.map(f => `
+    <div class="feedback-item">
+      <div class="feedback-meta">
+        <span class="feedback-name">${f.name}</span>
+        <span class="feedback-date">${new Date(f.createdAt).toLocaleDateString()}</span>
+      </div>
+      <div class="feedback-stars">${"★".repeat(f.rating)}${"☆".repeat(5-f.rating)}</div>
+      <div class="feedback-text">${f.comment}</div>
+    </div>
+  `).join("");
+}
+
+// ---- Contact ----
+function submitContact() {
+  const name = document.getElementById("ct-name").value.trim();
+  const email = document.getElementById("ct-email").value.trim();
+  const message = document.getElementById("ct-message").value.trim();
+  if (!name || !email || !message) { showNotification("Please fill all contact fields.", "error"); return; }
+  ContactMessages.add({ name, email, message });
+  showNotification("Message sent! We'll get back to you soon.", "success");
+  document.getElementById("ct-name").value = "";
+  document.getElementById("ct-email").value = "";
+  document.getElementById("ct-message").value = "";
+}
+
+// ---- Search ----
+function doSearch() {
+  const q = document.getElementById("search-input").value.trim();
+  const results = document.getElementById("search-results");
+  if (!q) { results.innerHTML = ""; return; }
+  const found = AI.searchTopics(q);
+  if (!found.length) { results.innerHTML = '<p style="color:var(--text-light);text-align:center;padding:1rem;">No results found. Try different keywords.</p>'; return; }
+  results.innerHTML = found.map(t => `
+    <div class="topic-card">
+      <div class="topic-icon">${t.icon || "📄"}</div>
+      <div class="topic-category">${t.category}</div>
+      <div class="topic-title">${t.title}</div>
+      <div class="topic-content">${t.content}</div>
+    </div>
+  `).join("");
+}
+
+// ---- Chatbot ----
+let chatOpen = false;
+function toggleChatbot() {
+  chatOpen = !chatOpen;
+  document.getElementById("chatbot-window").classList.toggle("open", chatOpen);
+  if (chatOpen && !document.getElementById("chatbot-messages").children.length) {
+    addChatMsg("Hello! I'm NutriBot 🌿 Your AI health assistant at Nutrizel. How can I help you today?", "bot");
+  }
+}
+function addChatMsg(text, type) {
+  const msgs = document.getElementById("chatbot-messages");
+  const div = document.createElement("div");
+  div.className = `chat-msg ${type}`;
+  div.textContent = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+function sendChat() {
+  const input = document.getElementById("chatbot-input");
+  const text = input.value.trim();
+  if (!text) return;
+  addChatMsg(text, "user");
+  input.value = "";
+  setTimeout(() => addChatMsg(AI.getChatResponse(text), "bot"), 600);
+}
+
+// ---- Init ----
+document.addEventListener("DOMContentLoaded", () => {
+  renderServices();
+  renderNews();
+  renderLocation();
+  renderFeedback();
+  loadFAQ("diabetes", document.querySelector(".faq-tab"));
+});
+</script>
+</body>
+</html>

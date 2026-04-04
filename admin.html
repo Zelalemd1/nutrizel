@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — Nutrizel</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
+</head>
+<body>
+<div id="notification-container"></div>
+<div id="loading-overlay" class="hidden"><div class="spinner"></div></div>
+
+<div class="dash-layout">
+  <!-- ===== ADMIN SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Admin navigation">
+    <div class="sidebar-header">
+      <span class="sidebar-logo">⚙️</span>
+      <div class="sidebar-brand">Admin Panel<span>Nutrizel Center</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Management</div>
+      <a href="#" class="sidebar-link active" onclick="showAdminPanel('overview',this)"><span class="link-icon">📊</span> Overview</a>
+      <a href="#" class="sidebar-link" onclick="showAdminPanel('users',this)"><span class="link-icon">👥</span> <span data-i18n="admin_users">Manage Users</span></a>
+      <a href="#" class="sidebar-link" onclick="showAdminPanel('topics',this)"><span class="link-icon">📚</span> <span data-i18n="admin_topics">Health Topics</span></a>
+      <a href="#" class="sidebar-link" onclick="showAdminPanel('news',this)"><span class="link-icon">📰</span> <span data-i18n="admin_news">News & Updates</span></a>
+      <a href="#" class="sidebar-link" onclick="showAdminPanel('feedback',this)"><span class="link-icon">⭐</span> <span data-i18n="admin_feedback">View Feedback</span></a>
+      <a href="#" class="sidebar-link" onclick="showAdminPanel('appointments',this)"><span class="link-icon">📅</span> All Appointments</a>
+      <a href="#" class="sidebar-link" onclick="showAdminPanel('contacts',this)"><span class="link-icon">✉️</span> Contact Messages</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" style="background:var(--danger);">A</div>
+        <div><div class="user-name">Admin</div><div class="user-role" style="color:var(--danger);">Administrator</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== ADMIN MAIN ===== -->
+  <main class="dash-main">
+    <header class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button id="sidebar-toggle" style="background:none;border:none;font-size:1.4rem;cursor:pointer;display:none;" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+        <span class="dash-topbar-title" id="admin-panel-title">Admin Overview</span>
+      </div>
+      <div class="dash-topbar-actions">
+        <div class="dark-toggle-wrap">
+          <span>🌙</span>
+          <label class="toggle-switch"><input type="checkbox" id="dark-toggle" /><span class="toggle-slider"></span></label>
+        </div>
+        <select id="lang-selector" class="lang-select">
+          <option value="en">EN</option>
+          <option value="am">አማ</option>
+          <option value="or">OR</option>
+          <option value="ti">ትግ</option>
+        </select>
+        <button onclick="Auth.logout()" class="btn btn-danger btn-sm">Logout</button>
+      </div>
+    </header>
+
+    <div class="dash-content">

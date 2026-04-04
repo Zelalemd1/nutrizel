@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register — Nutrizel</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
+</head>
+<body>
+<div id="notification-container"></div>
+<div id="loading-overlay" class="hidden"><div class="spinner"></div></div>
+
+<div class="auth-page">
+  <div class="auth-card animate-fade-up" style="max-width:520px;">
+    <div class="auth-logo">
+      <div class="logo-icon">🌿</div>
+      <h1>Nutrizel</h1>
+      <p>Create your health account</p>
+    </div>
+
+    <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:1.5rem;text-align:center;" data-i18n="register_title">Create Your Account</h2>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label data-i18n="register_name">Full Name</label>
+        <input type="text" id="reg-name" placeholder="Full Name" autocomplete="name" />
+      </div>
+      <div class="form-group">
+        <label data-i18n="register_phone">Phone Number</label>
+        <input type="tel" id="reg-phone" placeholder="+251 9XX XXX XXX" autocomplete="tel" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label data-i18n="register_email">Email Address</label>
+      <input type="email" id="reg-email" placeholder="Email Address" autocomplete="email" />
+    </div>
+
+    <div class="form-group">
+      <label data-i18n="register_password">Password</label>
+      <input type="password" id="reg-password" placeholder="Minimum 6 characters" autocomplete="new-password" />
+    </div>
+
+    <div class="form-group">
+      <label>Confirm Password</label>
+      <input type="password" id="reg-confirm" placeholder="Confirm your password" autocomplete="new-password" />
+    </div>
+
+    <div class="form-group">
+      <label data-i18n="register_lang">Preferred Language</label>
+      <select id="reg-lang">
+        <option value="en">English</option>
+        <option value="am">Amharic — አማርኛ</option>
+        <option value="or">Afaan Oromo</option>
+        <option value="ti">Tigrigna — ትግርኛ</option>
+      </select>
+    </div>
+
+    <!-- Service selection (no fees shown) -->
+    <div class="form-group">
+      <label>Select Service (Optional)</label>
+      <select id="reg-service">
+        <option value="">— No service yet —</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary btn-block mt-2" onclick="doRegister()" data-i18n="register_btn">Register</button>
+
+    <div class="auth-divider">or</div>
+
+    <button class="btn-google" onclick="googleSignIn()">
+      <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+      Sign up with Google
+    </button>
+
+    <div id="reg-error" class="form-error" aria-live="polite"></div>
+
+    <div class="auth-footer">
+      <span data-i18n="register_have_account">Already have an account?</span>
+      <a href="login.html" style="color:var(--primary);font-weight:700;margin-left:0.3rem;" data-i18n="nav_login">Login</a>
+    </div>
+    <div style="text-align:center;margin-top:0.8rem;">
+      <a href="index.html" style="font-size:0.85rem;color:var(--text-light);">← Back to Home</a>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);">
+      <div class="dark-toggle-wrap">
+        <span>🌙</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="dark-toggle" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <select id="lang-selector" class="lang-select">
+        <option value="en">EN</option>
+        <option value="am">አማ</option>
+        <option value="or">OR</option>
+        <option value="ti">ትግ</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Modal -->
+<div class="modal-overlay" id="invoice-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" data-i18n="invoice_title">Service Invoice</span>
+      <button class="modal-close" onclick="closeInvoice()">✕</button>
+    </div>
+    <div id="invoice-content"></div>
+    <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+      <button class="btn btn-primary" onclick="goToDashboard()">Go to Dashboard</button>
+      <button class="btn btn-outline" onclick="window.print()">🖨️ Print</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/lang.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+  // ⚠️ Replace with your actual Google OAuth Client ID
+  const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+  let registeredUser = null;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (Auth.getSession()) window.location.href = "dashboard.html";
+    // Populate service dropdown — names only, no fees
+    const sel = document.getElementById("reg-service");
+    Services.forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s.id;
+      opt.textContent = s.name;
+      sel.appendChild(opt);
+    });
+  });
+
+  function doRegister() {
+    const name = document.getElementById("reg-name").value.trim();
+    const email = document.getElementById("reg-email").value.trim();
+    const phone = document.getElementById("reg-phone").value.trim();
+    const password = document.getElementById("reg-password").value;
+    const confirm = document.getElementById("reg-confirm").value;
+    const lang = document.getElementById("reg-lang").value;
+    const serviceId = document.getElementById("reg-service").value;
+    const errEl = document.getElementById("reg-error");
+    errEl.textContent = "";
+
+    if (!name || !email || !phone || !password) { errEl.textContent = "Please fill all required fields."; return; }
+    if (password.length < 6) { errEl.textContent = "Password must be at least 6 characters."; return; }
+    if (password !== confirm) { errEl.textContent = "Passwords do not match."; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = "Please enter a valid email address."; return; }
+
+    showLoading();
+    setTimeout(() => {
+      hideLoading();
+      const result = Auth.register({ name, email, phone, password, lang });
+      if (!result.success) { errEl.textContent = result.message; return; }
+      registeredUser = result.user;
+
+      if (serviceId) {
+        const svc = Services.find(s => s.id === serviceId);
+        if (svc) {
+          Auth.updateUserPayment(result.user.id, {
+            serviceId: svc.id, serviceName: svc.name,
+            date: new Date().toISOString(), status: "pending"
+          });
+        }
+      }
+      showNotification("Account created successfully!", "success");
+      Auth.login(email, password);
+      setTimeout(() => window.location.href = "dashboard.html", 1000);
+    }, 700);
+  }
+
+  function closeInvoice() { document.getElementById("invoice-modal").classList.remove("open"); }
+  function goToDashboard() { window.location.href = "dashboard.html"; }
+
+  function googleSignIn() {
+    if (GOOGLE_CLIENT_ID === "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com") {
+      showNotification("Google Sign-In: replace GOOGLE_CLIENT_ID in login.html & register.html with your real Client ID.", "error");
+      return;
+    }
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleCredential
+    });
+    google.accounts.id.prompt();
+  }
+
+  function handleGoogleCredential(response) {
+    const payload = JSON.parse(atob(response.credential.split(".")[1]));
+    const { name, email, sub } = payload;
+    const result = Auth.loginOrRegisterGoogle({ name, email, googleId: sub });
+    showNotification("Welcome, " + name + "!", "success");
+    setTimeout(() => window.location.href = "dashboard.html", 800);
+  }
+</script>
+</body>
+</html>

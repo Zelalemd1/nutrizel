@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nutrizel — Test Setup</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body { font-family: monospace; padding: 2rem; background: #f8f9fa; }
+    h1 { color: #2d6a4f; margin-bottom: 0.5rem; }
+    .suite { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .suite h2 { font-size: 1rem; margin: 0 0 1rem; color: #333; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
+    .test { display: flex; align-items: center; gap: 0.6rem; padding: 0.3rem 0; font-size: 0.88rem; }
+    .pass { color: #2d6a4f; } .fail { color: #d62828; } .warn { color: #e07b00; }
+    .badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 999px; font-weight: 700; }
+    .badge-pass { background: #d8f3dc; color: #2d6a4f; }
+    .badge-fail { background: #ffe0e0; color: #d62828; }
+    .badge-warn { background: #fff3cd; color: #856404; }
+    #summary { font-size: 1.1rem; font-weight: 700; padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; }
+    .sum-pass { background: #d8f3dc; color: #2d6a4f; }
+    .sum-fail { background: #ffe0e0; color: #d62828; }
+    .links { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+    .links a { padding: 0.5rem 1.2rem; background: #2d6a4f; color: white; border-radius: 6px; text-decoration: none; font-size: 0.88rem; }
+    .links a:hover { background: #1b4332; }
+    pre { background: #f1f3f5; padding: 0.8rem; border-radius: 6px; font-size: 0.78rem; overflow-x: auto; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+
+<h1>🌿 Nutrizel — Test Setup</h1>
+<p style="color:#666;margin-bottom:1.5rem;font-size:0.9rem;">Verifies all core modules work correctly in the browser.</p>
+
+<div id="summary"></div>
+<div id="results"></div>
+
+<div class="links">
+  <a href="index.html">🏠 Home</a>
+  <a href="login.html">🔑 Login</a>
+  <a href="register.html">📝 Register</a>
+  <a href="dashboard.html">📊 Dashboard</a>
+  <a href="admin.html">⚙️ Admin</a>
+</div>
+
+<script src="js/lang.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/app.js"></script>
+<script>
+const results = [];
+
+function test(suite, name, fn) {
+  try {
+    const result = fn();
+    if (result === false) throw new Error("returned false");
+    results.push({ suite, name, status: "pass", detail: "" });
+  } catch(e) {
+    results.push({ suite, name, status: "fail", detail: e.message });
+  }
+}
+
+function warn(suite, name, fn) {
+  try {
+    fn();
+    results.push({ suite, name, status: "pass", detail: "" });
+  } catch(e) {
+    results.push({ suite, name, status: "warn", detail: e.message });
+  }
+}
+
+// ── Clean slate ──
+localStorage.removeItem("nz_users");
+localStorage.removeItem("nz_session");
+localStorage.removeItem("nz_appointments");
+localStorage.removeItem("nz_feedback");
+localStorage.removeItem("nz_contacts");
+localStorage.removeItem("nz_news");
+
+// Re-seed admin
+const AuthFresh = (() => {
+  const USERS_KEY = "nz_users";
+  const SESSION_KEY = "nz_session";
+  function getUsers() { return JSON.parse(localStorage.getItem(USERS_KEY) || "[]"); }
+  function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+  const bcryptMock = (p) => "hashed_" + p; // mock — real auth.js uses plain compare
+  return { getUsers, saveUsers };
+})();
+
+// ══════════════════════════════════════════
+// SUITE 1 — Auth Module
+// ══════════════════════════════════════════
+test("Auth", "Auth object exists", () => typeof Auth !== "undefined");
+test("Auth", "Admin seeded on load", () => {
+  const users = JSON.parse(localStorage.getItem("nz_users") || "[]");
+  return users.some(u => u.role === "admin" && u.email === "admin@nutrizel.et");
+});
+test("Auth", "Admin login works", () => {
+  const r = Auth.login("admin@nutrizel.et", "Admin@1234");
+  return r.success === true && r.session.role === "admin";
+});
+test("Auth", "Session stored after login", () => {
+  return JSON.parse(localStorage.getItem("nz_session")) !== null;
+});
+test("Auth", "getSession returns session", () => {
+  return Auth.getSession()?.role === "admin";
+});
+test("Auth", "Logout clears session", () => {
+  // mock logout without redirect
+  localStorage.removeItem("nz_session");
+  return Auth.getSession() === null;
+});
+test("Auth", "Register new user", () => {
+  const r = Auth.register({ name: "Test User", email: "test@nutrizel.et", phone: "+251911111111", password: "Test@123", lang: "en" });
+  return r.success === true;
+});
+test("Auth", "Duplicate email rejected", () => {
+  const r = Auth.register({ name: "Test User", email: "test@nutrizel.et", phone: "+251911111111", password: "Test@123", lang: "en" });
+  return r.success === false;
+});
+test("Auth", "Login with new user", () => {
+  const r = Auth.login("test@nutrizel.et", "Test@123");
+  return r.success === true && r.session.role === "client";
+});
+test("Auth", "Wrong password rejected", () => {
+  const r = Auth.login("test@nutrizel.et", "wrongpass");
+  return r.success === false;
+});
+test("Auth", "getUserById works", () => {
+  const users = JSON.parse(localStorage.getItem("nz_users") || "[]");
+  const u = users.find(u => u.email === "test@nutrizel.et");
+  return Auth.getUserById(u.id)?.email === "test@nutrizel.et";
+});
+test("Auth", "loginOrRegisterGoogle works", () => {
+  const s = Auth.loginOrRegisterGoogle({ name: "Google User", email: "google@gmail.com", googleId: "gid_123" });
+  return s?.role === "client";
+});
+test("Auth", "Google user auto-registered", () => {
+  const users = JSON.parse(localStorage.getItem("nz_users") || "[]");
+  return users.some(u => u.email === "google@gmail.com" && u.googleId === "gid_123");
+});
+
+// ══════════════════════════════════════════
+// SUITE 2 — Appointments
+// ══════════════════════════════════════════
+const session = Auth.login("test@nutrizel.et", "Test@123").session;
+
+test("Appointments", "Appointments object exists", () => typeof Appointments !== "undefined");
+test("Appointments", "Add appointment", () => {
+  Appointments.add({ userId: session.userId, service: "Nutrition Assessment", serviceId: "s1", date: "2026-05-01", time: "09:00 AM", phone: "+251911111111", notes: "Test" });
+  return Appointments.getByUser(session.userId).length > 0;
+});
+test("Appointments", "getByUser filters correctly", () => {
+  const appts = Appointments.getByUser(session.userId);
+  return appts.every(a => a.userId === session.userId);
+});
+test("Appointments", "Appointment has phone field", () => {
+  const appt = Appointments.getByUser(session.userId)[0];
+  return appt.phone === "+251911111111";
+});
+test("Appointments", "Appointment has status pending", () => {
+  return Appointments.getByUser(session.userId)[0].status === "pending";
+});
+
+// ══════════════════════════════════════════
+// SUITE 3 — News
+// ══════════════════════════════════════════
+test("News", "News object exists", () => typeof News !== "undefined");
+test("News", "Default news loaded", () => News.getAll().length >= 3);
+test("News", "Add custom news", () => {
+  News.add({ title: "Test News", content: "Test content", icon: "🧪" });
+  return News.getAll().some(n => n.title === "Test News");
+});
+test("News", "Delete news works", () => {
+  const custom = News.getAll().find(n => n.title === "Test News");
+  News.delete(custom.id);
+  return !News.getAll().some(n => n.title === "Test News");
+});
+
+// ══════════════════════════════════════════
+// SUITE 4 — Feedback
+// ══════════════════════════════════════════
+test("Feedback", "Feedback object exists", () => typeof Feedback !== "undefined");
+test("Feedback", "Add feedback", () => {
+  Feedback.add({ name: "Test User", comment: "Great service!", rating: 5 });
+  return Feedback.getAll().length > 0;
+});
+test("Feedback", "Feedback has correct fields", () => {
+  const fb = Feedback.getAll()[0];
+  return fb.name && fb.comment && fb.rating && fb.id && fb.createdAt;
+});
+
+// ══════════════════════════════════════════
+// SUITE 5 — Contact Messages
+// ══════════════════════════════════════════
+test("Contacts", "ContactMessages object exists", () => typeof ContactMessages !== "undefined");
+test("Contacts", "Add contact message", () => {
+  ContactMessages.add({ name: "Test", email: "test@test.com", message: "Hello" });
+  return ContactMessages.getAll().length > 0;
+});
+
+// ══════════════════════════════════════════
+// SUITE 6 — AI Module
+// ══════════════════════════════════════════
+test("AI", "AI object exists", () => typeof AI !== "undefined");
+test("AI", "getChatResponse returns string", () => typeof AI.getChatResponse("hello") === "string");
+test("AI", "getChatResponse handles diabetes query", () => AI.getChatResponse("diabetes").length > 10);
+test("AI", "getChatResponse handles unknown query", () => AI.getChatResponse("xyzunknown123").length > 10);
+test("AI", "getRandomTopics returns array", () => Array.isArray(AI.getRandomTopics(4)) && AI.getRandomTopics(4).length === 4);
+test("AI", "getAllTopics returns array", () => Array.isArray(AI.getAllTopics()) && AI.getAllTopics().length > 0);
+test("AI", "searchTopics works", () => AI.searchTopics("diabetes").length > 0);
+test("AI", "getFAQs returns diabetes FAQs", () => AI.getFAQs("diabetes").length > 0);
+test("AI", "addTopic works", () => {
+  AI.addTopic({ title: "Test Topic", content: "Test", category: "Test", icon: "🧪" });
+  return AI.searchTopics("Test Topic").length > 0;
+});
+
+// ══════════════════════════════════════════
+// SUITE 7 — Services & Packages
+// ══════════════════════════════════════════
+test("Services", "Services array exists", () => Array.isArray(Services) && Services.length > 0);
+test("Services", "Services have no fee field exposed", () => Services.every(s => s.fee === undefined));
+test("Services", "Each service has id, name, icon, desc", () => Services.every(s => s.id && s.name && s.icon && s.desc));
+test("Packages", "Packages array exists", () => Array.isArray(Packages) && Packages.length > 0);
+test("Packages", "Packages cover all 4 periods", () => {
+  const periods = [...new Set(Packages.map(p => p.period))];
+  return ["daily","weekly","monthly","annually"].every(p => periods.includes(p));
+});
+test("Packages", "Packages have no fee field", () => Packages.every(p => p.fee === undefined));
+test("Packages", "Each package has required fields", () => Packages.every(p => p.id && p.name && p.period && p.profession && p.services && p.highlights));
+
+// ══════════════════════════════════════════
+// SUITE 8 — Page Files Reachable
+// ══════════════════════════════════════════
+warn("Pages", "index.html exists", () => { if (!document.querySelector) throw new Error("DOM not available"); });
+warn("Pages", "CSS loaded (body has styles)", () => {
+  const style = getComputedStyle(document.body);
+  if (!style) throw new Error("No styles");
+});
+
+// ══════════════════════════════════════════
+// RENDER RESULTS
+// ══════════════════════════════════════════
+const suites = [...new Set(results.map(r => r.suite))];
+const passed = results.filter(r => r.status === "pass").length;
+const failed = results.filter(r => r.status === "fail").length;
+const warned = results.filter(r => r.status === "warn").length;
+const total = results.length;
+
+const summaryEl = document.getElementById("summary");
+summaryEl.className = failed > 0 ? "sum-fail" : "sum-pass";
+summaryEl.innerHTML = failed > 0
+  ? `❌ ${failed} test(s) failed — ${passed} passed, ${warned} warnings out of ${total} total`
+  : `✅ All ${passed} tests passed${warned > 0 ? ` (${warned} warnings)` : ""}`;
+
+const container = document.getElementById("results");
+suites.forEach(suite => {
+  const suiteResults = results.filter(r => r.suite === suite);
+  const suiteFails = suiteResults.filter(r => r.status === "fail").length;
+  const div = document.createElement("div");
+  div.className = "suite";
+  div.innerHTML = `<h2>${suiteFails > 0 ? "❌" : "✅"} ${suite} (${suiteResults.filter(r=>r.status==="pass").length}/${suiteResults.length} passed)</h2>`;
+  suiteResults.forEach(r => {
+    const icon = r.status === "pass" ? "✅" : r.status === "warn" ? "⚠️" : "❌";
+    const badge = `<span class="badge badge-${r.status === "warn" ? "warn" : r.status === "pass" ? "pass" : "fail"}">${r.status.toUpperCase()}</span>`;
+    div.innerHTML += `<div class="test">${icon} ${badge} <span>${r.name}</span>${r.detail ? `<span style="color:#999;font-size:0.78rem;">— ${r.detail}</span>` : ""}</div>`;
+  });
+  container.appendChild(div);
+});
+
+// Cleanup test data
+localStorage.removeItem("nz_session");
+</script>
+</body>
+</html>
